@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/ConstantineZarzhytskyy/threejs-example/issues"
   },
-  "homepage": "https://github.com/ConstantineZarzhytskyy/threejs-example#readme"
+  "homepage": "https://github.com/ConstantineZarzhytskyy/threejs-example#readme",
+  "dependencies": {
+    "three": "^0.86.0"
+  }
 }
