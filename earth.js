@@ -1,6 +1,7 @@
 window.onload = init;
 
-var scene, camera, render, cube;
+var scene, camera, render;
+var path = 'models/earth';
 
 function init() {
   if (!Detector.webgl) {
@@ -9,31 +10,53 @@ function init() {
     return document.body.appendChild(warning);
   }
 
+  var amColor = "#717171";
+  var amLigth = new THREE.AmbientLight(amColor);
+  var manager = new THREE.LoadingManager();
+  var loader = new THREE.ImageLoader(manager);
+  var earthTexture  = new THREE.Texture();
+  var objLoader = new THREE.OBJLoader();
+  var bumpMap = new THREE.TextureLoader().load(path + '/4096_bump.jpg');
+  var ligth = new THREE.DirectionalLight('#ffffff', 3);
+
+
   scene = new THREE.Scene();
-
-  camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 0.1, 1000);
-  camera.position.z = 5;
-
-  render = new THREE.WebGLRenderer();
+  camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 0.1, 10000);
+  camera.position.z = 1500;
+  render = new THREE.WebGLRenderer({ antialias: true });
+  render.setClearColor( 0x1f1f1f );
   render.setSize(window.innerWidth, window.innerHeight);
-
-  var geometry = new THREE.BoxGeometry(1, 1, 1);
-  var material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true, transparent: true, opacity: 0.2 });
-  cube = new THREE.Mesh(geometry, material);
-  cube.rotation.x +=0.1;
-  cube.rotation.y +=0.1;
-
-  scene.add(cube);
-
   document.body.appendChild(render.domElement);
-  animate();
-}
 
-function animate() {
-  cube.rotation.x +=0.01;
-  cube.rotation.y +=0.02;
-  cube.rotation.z +=0.03;
+  loader.load(path + '/4096_earth.jpg', function (image) {
+    earthTexture.image = image;
+    earthTexture.needsUpdate = true;
+  });
 
-  requestAnimationFrame( animate );
-  render.render( scene, camera );
+  objLoader.load(path + '/earth.obj', function (object) {
+    object.traverse(function (child) {
+      if (child instanceof THREE.Mesh) {
+        child.material = new THREE.MeshPhongMaterial({
+          map: earthTexture,
+          bumpMap: bumpMap,
+          specular: amColor,
+          bumpScale: 0.5
+        });
+      }
+    });
+
+    scene.add(object);
+  });
+
+  scene.add(ligth);
+  scene.add(amLigth);
+
+  var controls = new THREE.TrackballControls(camera);
+  var rendering = function () {
+    requestAnimationFrame( rendering );
+    controls.update();
+    render.render( scene, camera );
+  };
+
+  rendering();
 }
