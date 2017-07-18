@@ -1,6 +1,6 @@
 window.onload = init;
 
-var scene, camera, render, earth;
+var scene, camera, render, arrowUp;
 
 function init() {
   if (!Detector.webgl) {
@@ -11,29 +11,29 @@ function init() {
 
   scene = new THREE.Scene();
 
-  camera = new THREE.PerspectiveCamera(65, window.innerWidth/window.innerHeight, 0.1, 10000);
-  camera.position.set(0, 0, 1000);
+  camera = new THREE.PerspectiveCamera(45, window.innerWidth/window.innerHeight, 1, 500);
+  camera.position.set(0, 0, 100);
+  camera.lookAt(new THREE.Vector3(0, 0, 0));
 
   render = new THREE.WebGLRenderer();
   render.setSize(window.innerWidth, window.innerHeight);
 
-  var geometry = new THREE.SphereGeometry(300, 100, 100);
-  var material = new THREE.MeshBasicMaterial({ color: 0x00ff00, wireframe: true, transparent: true, opacity: 0.2 });
-  earth = new THREE.Mesh(geometry, material);
-  earth.rotation.x +=0.1;
-  earth.rotation.y +=0.1;
+  var material = new THREE.LineBasicMaterial({ color: 0x00ff00 });
+  var geometry = new THREE.Geometry();
 
-  scene.add(earth);
+  geometry.vertices.push(new THREE.Vector3(-10, 0, 0));
+  geometry.vertices.push(new THREE.Vector3(0, 10, 0));
+  geometry.vertices.push(new THREE.Vector3(10, 0, 0));
+
+  arrowUp = new THREE.Line(geometry, material);
+
+  scene.add(arrowUp);
 
   document.body.appendChild(render.domElement);
   animate();
 }
 
 function animate() {
-  earth.rotation.x += 0.01;
-  earth.rotation.y += 0.02;
-  earth.rotation.z += 0.03;
-
   requestAnimationFrame( animate );
   render.render( scene, camera );
 }
